@@ -1,6 +1,12 @@
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { ImageIcon, MoveHorizontalIcon, InfoIcon, Github } from "lucide-react";
+import {
+  ImageIcon,
+  MoveHorizontalIcon,
+  InfoIcon,
+  Github,
+  Pencil,
+} from "lucide-react";
 
 const menu = [
   {
@@ -12,6 +18,11 @@ const menu = [
     to: "/dimensions",
     icon: <MoveHorizontalIcon className="w-6 h-6" />,
     tooltip: "Resize by Dimensions",
+  },
+  {
+    to: "/draw",
+    icon: <Pencil className="w-6 h-6" />,
+    tooltip: "Draw",
   },
 ];
 
