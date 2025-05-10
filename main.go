@@ -32,8 +32,8 @@ func main() {
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:                            manager.Decolgen.Name,
-		Width:                            1100,
-		Height:                           680,
+		Width:                            900,
+		Height:                           600,
 		MinWidth:                         750,
 		MinHeight:                        450,
 		Frameless:                        false,

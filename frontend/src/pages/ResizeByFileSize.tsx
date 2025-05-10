@@ -8,7 +8,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { manager } from "@wails/go/models";
 import FileInfo from "@/components/custom/FileInfo";
-import { ImageIcon, Loader2, UploadIcon } from "lucide-react";
+import { ImageIcon, Loader2, UploadIcon, PlayIcon } from "lucide-react";
 
 const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB
 
@@ -95,12 +95,19 @@ export default function ResizeByFileSize() {
   });
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-b from-blue-50 to-white p-8">
+    <div className="flex min-h-screen w-full bg-gradient-to-b from-blue-50 to-white p-8">
       <div className="w-full max-w-6xl rounded-2xl shadow-xl bg-white border border-blue-100">
         <div className="p-8">
-          <h2 className="text-2xl font-bold text-blue-700 mb-6">
+          <h2 className="text-2xl font-bold text-blue-700">
             Resize by file size
           </h2>
+          <span className="text-sm text-blue-500 mb-6">
+            This feature allows you to resize an image to a specific file size.
+            You can select an image and then enter the desired file size in
+            bytes. The app will then resize the image to the specified size and
+            save it to the same location as the original image.
+          </span>
+          <hr className="my-6 border-t border-blue-100" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Left Column - Upload and Preview */}
             <div className="space-y-6">
@@ -169,9 +176,9 @@ export default function ResizeByFileSize() {
                   {isLoading ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
                   ) : (
-                    <ImageIcon className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                    <PlayIcon className="h-5 w-5 group-hover:scale-110 transition-transform" />
                   )}
-                  <span>{isLoading ? "Processing..." : "Resize Image"}</span>
+                  <span>{isLoading ? "Processing..." : "Resize"}</span>
                 </Button>
               </form>
             </div>

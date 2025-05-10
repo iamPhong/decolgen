@@ -33,7 +33,7 @@ function OpenGithub() {
 
 export default function Sidebar() {
   return (
-    <aside className="w-20 h-screen bg-gradient-to-b from-blue-50 to-white border-r flex flex-col items-center">
+    <aside className="fixed top-0 left-0 w-20 h-screen bg-gradient-to-b from-blue-50 to-white border-r flex flex-col items-center">
       <nav className="flex-1 flex flex-col gap-2 items-center mt-6">
         {menu.map((item) => (
           <NavLink

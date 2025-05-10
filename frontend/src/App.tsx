@@ -4,12 +4,12 @@ import { Outlet } from "react-router-dom";
 
 function App() {
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="flex min-h-screen">
       <Sidebar />
-      <main className="flex-1 min-h-screen bg-gradient-to-b from-blue-50 to-white">
-        <Toaster />
+      <main className="flex-1 ml-20">
         <Outlet />
       </main>
+      <Toaster />
     </div>
   );
 }
