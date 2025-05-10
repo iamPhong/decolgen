@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/disintegration/imaging"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -14,6 +15,8 @@ type FileInfo struct {
 	ModTime  string `json:"modTime"`
 	IsDir    bool   `json:"isDir"`
 	Mode     string `json:"mode"`
+	Width    int    `json:"width"`
+	Height   int    `json:"height"`
 	Size     int    `json:"size"`
 	FilePath string `json:"filePath"`
 }
@@ -72,12 +75,15 @@ func (am *AppManager) OpenFileDialog() *FileResult {
 		}
 	}
 	encoded := base64.StdEncoding.EncodeToString(data)
+	width, height := getImageDimensions(filePath)
 
 	return &FileResult{
 		FileInfo: FileInfo{
 			Name:     fileInfo.Name(),
 			ModTime:  fileInfo.ModTime().Format(time.RFC3339),
 			IsDir:    fileInfo.IsDir(),
+			Width:    width,
+			Height:   height,
 			Mode:     fmt.Sprintf("%o", fileInfo.Mode()),
 			Size:     int(fileInfo.Size()),
 			FilePath: filePath,
@@ -86,4 +92,17 @@ func (am *AppManager) OpenFileDialog() *FileResult {
 		Base64Encoded: encoded,
 		Message:       "",
 	}
+}
+func getImageDimensions(filePath string) (int, int) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return 0, 0
+	}
+	defer file.Close()
+
+	img, err := imaging.Decode(file)
+	if err != nil {
+		return 0, 0
+	}
+	return img.Bounds().Dx(), img.Bounds().Dy()
 }

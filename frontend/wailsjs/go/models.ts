@@ -5,6 +5,8 @@ export namespace manager {
 	    modTime: string;
 	    isDir: boolean;
 	    mode: string;
+	    width: number;
+	    height: number;
 	    size: number;
 	    filePath: string;
 	
@@ -18,6 +20,8 @@ export namespace manager {
 	        this.modTime = source["modTime"];
 	        this.isDir = source["isDir"];
 	        this.mode = source["mode"];
+	        this.width = source["width"];
+	        this.height = source["height"];
 	        this.size = source["size"];
 	        this.filePath = source["filePath"];
 	    }

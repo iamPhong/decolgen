@@ -12,13 +12,13 @@ import { BrowserOpenURL } from "@wails/runtime";
 const menu = [
   {
     to: "/size",
-    icon: <ImageIcon className="w-6 h-6" />,
+    icon: <MoveHorizontalIcon className="w-6 h-6" />,
     tooltip: "Resize by Size",
   },
   {
-    to: "/dimensions",
-    icon: <MoveHorizontalIcon className="w-6 h-6" />,
-    tooltip: "Resize by Dimensions",
+    to: "/generateImage",
+    icon: <ImageIcon className="w-6 h-6" />,
+    tooltip: "Generate Image",
   },
   {
     to: "/draw",
@@ -34,7 +34,7 @@ function OpenGithub() {
 export default function Sidebar() {
   return (
     <aside className="fixed top-0 left-0 w-20 h-screen bg-gradient-to-b from-blue-50 to-white border-r flex flex-col items-center">
-      <nav className="flex-1 flex flex-col gap-2 items-center mt-6">
+      <nav className="flex-1 flex flex-col gap-2 items-center mt-8">
         {menu.map((item) => (
           <NavLink
             key={item.to}

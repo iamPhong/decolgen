@@ -9,7 +9,7 @@ function App() {
       <main className="flex-1 ml-20">
         <Outlet />
       </main>
-      <Toaster />
+      <Toaster position="top-right" richColors closeButton />
     </div>
   );
 }

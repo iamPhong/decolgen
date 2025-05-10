@@ -96,7 +96,7 @@ export default function ResizeByFileSize() {
 
   return (
     <div className="flex min-h-screen w-full bg-gradient-to-b from-blue-50 to-white p-8">
-      <div className="w-full max-w-6xl rounded-2xl shadow-xl bg-white border border-blue-100">
+      <div className="w-full max-w-6xl shadow-xl bg-white border border-blue-100">
         <div className="p-8">
           <h2 className="text-2xl font-bold text-blue-700">
             Resize by file size
