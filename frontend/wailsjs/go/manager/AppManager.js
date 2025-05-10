@@ -17,3 +17,11 @@ export function OnShutdown() {
 export function OnStartup(arg1) {
   return window['go']['manager']['AppManager']['OnStartup'](arg1);
 }
+
+export function OpenFileDialog() {
+  return window['go']['manager']['AppManager']['OpenFileDialog']();
+}
+
+export function ResizeByCapacity(arg1, arg2) {
+  return window['go']['manager']['AppManager']['ResizeByCapacity'](arg1, arg2);
+}

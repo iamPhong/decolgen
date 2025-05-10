@@ -81,6 +81,12 @@ func main() {
 		OnStartup: func(ctx context.Context) {
 			app.OnStartup(ctx)
 		},
+		OnBeforeClose: func(ctx context.Context) bool {
+			return app.OnBeforeClose()
+		},
+		OnShutdown: func(ctx context.Context) {
+			app.OnShutdown()
+		},
 		Bind: []interface{}{
 			app,
 		},

@@ -7,6 +7,7 @@ import {
   Github,
   Pencil,
 } from "lucide-react";
+import { BrowserOpenURL } from "@wails/runtime";
 
 const menu = [
   {
@@ -25,6 +26,10 @@ const menu = [
     tooltip: "Draw",
   },
 ];
+
+function OpenGithub() {
+  BrowserOpenURL("https://github.com/iamPhong/decolgen");
+}
 
 export default function Sidebar() {
   return (
@@ -51,20 +56,18 @@ export default function Sidebar() {
       </nav>
       <div className="flex flex-col gap-2 items-center mb-4">
         <button
-          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-blue-100 text-gray-500"
+          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-blue-100 text-gray-500 cursor-pointer"
           title="About"
         >
           <InfoIcon className="w-5 h-5" />
         </button>
-        <a
-          href="https://github.com/iamPhong/decolgen"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-blue-100 text-gray-500"
+        <button
+          onClick={OpenGithub}
+          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-blue-100 text-gray-500 cursor-pointer"
           title="GitHub"
         >
           <Github className="w-5 h-5" />
-        </a>
+        </button>
       </div>
     </aside>
   );

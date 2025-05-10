@@ -25,8 +25,9 @@
     /* Paths */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@wails/*": ["./wailsjs/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "wailsjs/*"]
 }
