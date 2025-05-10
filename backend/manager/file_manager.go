@@ -45,7 +45,7 @@ func (am *AppManager) OpenFileDialog() *FileResult {
 			FileInfo:      FileInfo{},
 			Status:        0,
 			Base64Encoded: "",
-			Message:       fmt.Sprintf("failed to open file dialog: %w", err),
+			Message:       fmt.Sprintf("failed to open file dialog: %s", err),
 		}
 	}
 
@@ -64,7 +64,7 @@ func (am *AppManager) OpenFileDialog() *FileResult {
 			FileInfo:      FileInfo{},
 			Status:        0,
 			Base64Encoded: "",
-			Message:       fmt.Sprintf("failed to read file: %w", err),
+			Message:       fmt.Sprintf("failed to read file: %s", err),
 		}
 	}
 
@@ -74,7 +74,7 @@ func (am *AppManager) OpenFileDialog() *FileResult {
 			FileInfo:      FileInfo{},
 			Status:        0,
 			Base64Encoded: "",
-			Message:       fmt.Sprintf("failed to get file info: %w", err),
+			Message:       fmt.Sprintf("failed to get file info: %s", err),
 		}
 	}
 	encoded := base64.StdEncoding.EncodeToString(data)
