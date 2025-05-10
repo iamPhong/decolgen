@@ -2,13 +2,17 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { OpenFileDialog, ResizeByCapacity } from "@wails/go/manager/AppManager";
+import {
+  OpenFileDialog,
+  ResizeByCapacity,
+  RevealInExplorer,
+} from "@wails/go/manager/AppManager";
 import { toast } from "sonner";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { manager } from "@wails/go/models";
 import FileInfo from "@/components/custom/FileInfo";
-import { ImageIcon, Loader2, UploadIcon, PlayIcon } from "lucide-react";
+import { Loader2, UploadIcon, PlayIcon } from "lucide-react";
 
 const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB
 
@@ -81,7 +85,15 @@ export default function ResizeByFileSize() {
           values.filePath,
           Number(values.fileSize)
         );
-        toast.success(`Image resized successfully! Saved to: ${savedPath}`);
+        toast.success(`Image resized successfully! Saved to: ${savedPath}`, {
+          action: {
+            label: "Open",
+            onClick: () => {
+              RevealInExplorer(savedPath);
+            },
+          },
+          duration: 10000,
+        });
       } catch (error) {
         if (error == "User cancelled the save dialog") {
           toast.warning(`Cancelled resize image`);

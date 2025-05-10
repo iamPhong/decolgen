@@ -25,3 +25,7 @@ export function OpenFileDialog() {
 export function ResizeByCapacity(arg1, arg2) {
   return window['go']['manager']['AppManager']['ResizeByCapacity'](arg1, arg2);
 }
+
+export function RevealInExplorer(arg1) {
+  return window['go']['manager']['AppManager']['RevealInExplorer'](arg1);
+}

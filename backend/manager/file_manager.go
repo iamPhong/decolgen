@@ -4,10 +4,13 @@ import (
 	"encoding/base64"
 	"fmt"
 	"os"
+	"os/exec"
 	"time"
 
 	"github.com/disintegration/imaging"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+
+	osRuntime "runtime"
 )
 
 type FileInfo struct {
@@ -93,6 +96,24 @@ func (am *AppManager) OpenFileDialog() *FileResult {
 		Message:       "",
 	}
 }
+
+func (am *AppManager) RevealInExplorer(filePath string) error {
+	var cmd *exec.Cmd
+
+	switch osRuntime.GOOS {
+	case "windows":
+		cmd = exec.Command("explorer", "/select,", filePath)
+	case "darwin":
+		cmd = exec.Command("open", "-R", filePath)
+	case "linux":
+		cmd = exec.Command("xdg-open", filePath)
+	default:
+		return fmt.Errorf("unsupported platform")
+	}
+
+	return cmd.Run()
+}
+
 func getImageDimensions(filePath string) (int, int) {
 	file, err := os.Open(filePath)
 	if err != nil {
