@@ -2,7 +2,12 @@ import { useState, useCallback, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { OpenFileDialog } from "@wails/go/manager/AppManager";
+import {
+  OpenFileDialog,
+  PreviewImageHandler,
+  RevealInExplorer,
+  SaveEditedImageHandler,
+} from "@wails/go/manager/AppManager";
 import { toast } from "sonner";
 import { manager } from "@wails/go/models";
 import FileInfo from "@/components/custom/FileInfo";
@@ -12,6 +17,8 @@ import {
   Maximize2Icon,
   ImageIcon,
   Loader2,
+  RotateCcwIcon,
+  SlidersHorizontalIcon,
 } from "lucide-react";
 import {
   Select,
@@ -21,16 +28,29 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { SlidersHorizontalIcon } from "lucide-react";
 
-const filters = [
+// Constants
+const FILTERS = [
   { value: "none", label: "None" },
   { value: "NearestNeighbor", label: "Nearest Neighbor" },
   { value: "Linear", label: "Linear" },
   { value: "CatmullRom", label: "CatmullRom" },
   { value: "Lanczos", label: "Lanczos" },
-];
+] as const;
 
+const DEFAULT_SETTINGS: ImageSettings = {
+  width: 0,
+  height: 0,
+  filter: "none",
+  blur: 0,
+  sharpening: 0,
+  gamma: 1,
+  contrast: 0,
+  brightness: 0,
+  saturation: 0,
+};
+
+// Types
 interface ImageSettings {
   width: number;
   height: number;
@@ -41,41 +61,107 @@ interface ImageSettings {
   contrast: number;
   brightness: number;
   saturation: number;
-  hue: number;
 }
 
 type SliderValue = [number];
+
+// Components
+const UploadArea = ({
+  previewImage,
+  onSelectFile,
+}: {
+  previewImage: string | null;
+  onSelectFile: () => void;
+}) => (
+  <div
+    className="w-full border-dashed border-2 rounded-xl p-8 text-center text-blue-400 bg-blue-50 cursor-pointer hover:bg-blue-100 transition"
+    onClick={onSelectFile}
+  >
+    {previewImage ? (
+      <div className="space-y-4">
+        <div className="w-full h-[500px] flex items-center justify-center bg-white rounded-lg shadow-lg overflow-hidden">
+          <img
+            src={`data:image/png;base64,${previewImage}`}
+            alt="preview"
+            className="max-w-full max-h-full object-contain"
+          />
+        </div>
+        <div className="text-sm text-blue-500">Click to change image</div>
+      </div>
+    ) : (
+      <div className="flex flex-col items-center gap-6 py-16">
+        <div className="p-6 bg-blue-100 rounded-full">
+          <UploadIcon className="h-12 w-12 text-blue-500" />
+        </div>
+        <div className="space-y-3">
+          <div className="text-xl font-semibold text-blue-500">
+            Click to Upload
+          </div>
+          <div className="text-sm text-blue-400">
+            BMP, PNG, JPG, JPEG, TIF, TIFF, WebP or GIF
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
+);
+
+const AdjustmentSlider = ({
+  label,
+  value,
+  onChange,
+  min,
+  max,
+  step,
+  disabled,
+}: {
+  label: string;
+  value: number;
+  onChange: (value: SliderValue) => void;
+  min: number;
+  max: number;
+  step: number;
+  disabled: boolean;
+}) => (
+  <div className="space-y-2 bg-white p-4 rounded-lg shadow-sm">
+    <div className="flex justify-between items-center">
+      <Label className="text-sm font-medium text-blue-600">{label}</Label>
+      <span className="text-sm text-blue-500 font-medium">{value}</span>
+    </div>
+    <Slider
+      value={[value] as SliderValue}
+      onValueChange={onChange}
+      min={min}
+      max={max}
+      step={step}
+      disabled={disabled}
+      className="mt-2"
+    />
+  </div>
+);
 
 export default function GenerateImage() {
   const [selectedImage, setSelectedImage] = useState<manager.FileResult | null>(
     null
   );
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [settings, setSettings] = useState<ImageSettings>({
-    width: 0,
-    height: 0,
-    filter: "none",
-    blur: 0,
-    sharpening: 0,
-    gamma: 1,
-    contrast: 0,
-    brightness: 0,
-    saturation: 0,
-    hue: 0,
-  });
+  const [settings, setSettings] = useState<ImageSettings>(DEFAULT_SETTINGS);
+  const [isModified, setIsModified] = useState(false);
 
   const handleSelectFile = async () => {
     try {
       setIsLoading(true);
       const result = await OpenFileDialog();
       if (result && result.status === 1) {
-        setSelectedImage(result);
         const fileInfo = result.fileInfo;
-        setSettings((prev) => ({
-          ...prev,
+        setSelectedImage(result);
+        setSettings({
+          ...DEFAULT_SETTINGS,
           width: fileInfo.width || 0,
           height: fileInfo.height || 0,
-        }));
+        });
+        setPreviewImage(result.base64Encoded);
       } else {
         toast.error(result?.message || "Failed to open file");
       }
@@ -87,12 +173,36 @@ export default function GenerateImage() {
   const handleSave = async () => {
     setIsLoading(true);
     try {
-      // TODO: Implement save functionality
-      toast.success("Image saved successfully!");
+      const savedPath = await SaveEditedImageHandler(
+        selectedImage?.fileInfo.filePath || "",
+        settings
+      );
+      toast.success(`Image saved successfully! Saved to: ${savedPath}`, {
+        action: {
+          label: "Open",
+          onClick: () => RevealInExplorer(savedPath),
+        },
+        duration: 10000,
+      });
     } catch (error) {
-      toast.error(`Failed to save image: ${error}`);
+      if (error === "User cancelled the save dialog") {
+        toast.warning("User cancelled the save dialog");
+      } else {
+        toast.error(`Failed to save image: ${error}`);
+      }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleReset = () => {
+    if (selectedImage) {
+      setSettings({
+        ...DEFAULT_SETTINGS,
+        width: selectedImage.fileInfo.width || 0,
+        height: selectedImage.fileInfo.height || 0,
+      });
+      setIsModified(false);
     }
   };
 
@@ -100,17 +210,29 @@ export default function GenerateImage() {
     value: SliderValue,
     setting: keyof ImageSettings
   ) => {
+    setIsModified(true);
     setSettings((prev) => ({ ...prev, [setting]: value[0] }));
   };
 
   const handlePreview = useCallback(async () => {
-    console.log(settings);
-  }, [settings]);
+    if (selectedImage) {
+      try {
+        setIsLoading(true);
+        const result = await PreviewImageHandler(
+          selectedImage.fileInfo.filePath,
+          settings
+        );
+        setPreviewImage(result);
+      } catch (error) {
+        toast.error((error as Error).message);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  }, [selectedImage, settings]);
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      handlePreview();
-    }, 1000);
+    const timeoutId = setTimeout(handlePreview, 1000);
     return () => clearTimeout(timeoutId);
   }, [handlePreview]);
 
@@ -125,45 +247,16 @@ export default function GenerateImage() {
           </span>
           <hr className="my-6 border-t border-blue-100" />
           <div className="space-y-8">
-            {/* Top Section - Upload and Preview (Full width) */}
+            {/* Top Section - Upload and Preview */}
             <div className="space-y-6">
-              <div
-                className="w-full border-dashed border-2 rounded-xl p-8 text-center text-blue-400 bg-blue-50 cursor-pointer hover:bg-blue-100 transition"
-                onClick={handleSelectFile}
-              >
-                {selectedImage?.base64Encoded ? (
-                  <div className="space-y-4">
-                    <div className="w-full h-[500px] flex items-center justify-center bg-white rounded-lg shadow-lg overflow-hidden">
-                      <img
-                        src={`data:image/png;base64,${selectedImage.base64Encoded}`}
-                        alt="preview"
-                        className="max-w-full max-h-full object-contain"
-                      />
-                    </div>
-                    <div className="text-sm text-blue-500">
-                      Click to change image
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center gap-6 py-16">
-                    <div className="p-6 bg-blue-100 rounded-full">
-                      <UploadIcon className="h-12 w-12 text-blue-500" />
-                    </div>
-                    <div className="space-y-3">
-                      <div className="text-xl font-semibold text-blue-500">
-                        Click to Upload
-                      </div>
-                      <div className="text-sm text-blue-400">
-                        BMP, PNG, JPG, JPEG, TIF, TIFF, WebP or GIF
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <UploadArea
+                previewImage={previewImage}
+                onSelectFile={handleSelectFile}
+              />
               {selectedImage && <FileInfo data={selectedImage.fileInfo} />}
             </div>
 
-            {/* Bottom Section - Tools (Full width) */}
+            {/* Bottom Section - Tools */}
             <div className="bg-white rounded-xl p-6 border border-blue-100 shadow-sm">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Dimensions */}
@@ -185,12 +278,13 @@ export default function GenerateImage() {
                           id="width"
                           type="number"
                           value={settings.width}
-                          onChange={(e) =>
+                          onChange={(e) => {
                             setSettings((prev) => ({
                               ...prev,
                               width: Number(e.target.value),
-                            }))
-                          }
+                            }));
+                            setIsModified(true);
+                          }}
                           disabled={!selectedImage}
                           className="pl-8 bg-white border-blue-200 focus:border-blue-400 focus:ring-blue-400"
                         />
@@ -211,12 +305,13 @@ export default function GenerateImage() {
                           id="height"
                           type="number"
                           value={settings.height}
-                          onChange={(e) =>
+                          onChange={(e) => {
                             setSettings((prev) => ({
                               ...prev,
                               height: Number(e.target.value),
-                            }))
-                          }
+                            }));
+                            setIsModified(true);
+                          }}
                           disabled={!selectedImage}
                           className="pl-8 bg-white border-blue-200 focus:border-blue-400 focus:ring-blue-400"
                         />
@@ -236,16 +331,17 @@ export default function GenerateImage() {
                   </h3>
                   <Select
                     value={settings.filter}
-                    onValueChange={(value) =>
-                      setSettings((prev) => ({ ...prev, filter: value }))
-                    }
+                    onValueChange={(value) => {
+                      setSettings((prev) => ({ ...prev, filter: value }));
+                      setIsModified(true);
+                    }}
                     disabled={!selectedImage}
                   >
                     <SelectTrigger className="bg-white border-blue-200 focus:border-blue-400 focus:ring-blue-400">
                       <SelectValue placeholder="Select filter" />
                     </SelectTrigger>
                     <SelectContent>
-                      {filters.map((filter) => (
+                      {FILTERS.map((filter) => (
                         <SelectItem
                           key={filter.value}
                           value={filter.value}
@@ -266,169 +362,86 @@ export default function GenerateImage() {
                   Adjustments
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <div className="space-y-2 bg-white p-4 rounded-lg shadow-sm">
-                    <div className="flex justify-between items-center">
-                      <Label className="text-sm font-medium text-blue-600">
-                        Blur
-                      </Label>
-                      <span className="text-sm text-blue-500 font-medium">
-                        {settings.blur.toFixed(1)}
-                      </span>
-                    </div>
-                    <Slider
-                      value={[settings.blur] as SliderValue}
-                      onValueChange={(value: SliderValue) =>
-                        handleSliderChange(value, "blur")
-                      }
-                      min={0}
-                      max={5}
-                      step={0.1}
-                      disabled={!selectedImage}
-                      className="mt-2"
-                    />
-                  </div>
-
-                  <div className="space-y-2 bg-white p-4 rounded-lg shadow-sm">
-                    <div className="flex justify-between items-center">
-                      <Label className="text-sm font-medium text-blue-600">
-                        Sharpening
-                      </Label>
-                      <span className="text-sm text-blue-500 font-medium">
-                        {settings.sharpening.toFixed(1)}
-                      </span>
-                    </div>
-                    <Slider
-                      value={[settings.sharpening] as SliderValue}
-                      onValueChange={(value: SliderValue) =>
-                        handleSliderChange(value, "sharpening")
-                      }
-                      min={0}
-                      max={5}
-                      step={0.1}
-                      disabled={!selectedImage}
-                      className="mt-2"
-                    />
-                  </div>
-
-                  <div className="space-y-2 bg-white p-4 rounded-lg shadow-sm">
-                    <div className="flex justify-between items-center">
-                      <Label className="text-sm font-medium text-blue-600">
-                        Gamma
-                      </Label>
-                      <span className="text-sm text-blue-500 font-medium">
-                        {settings.gamma.toFixed(1)}
-                      </span>
-                    </div>
-                    <Slider
-                      value={[settings.gamma] as SliderValue}
-                      onValueChange={(value: SliderValue) =>
-                        handleSliderChange(value, "gamma")
-                      }
-                      min={0}
-                      max={2}
-                      step={0.1}
-                      disabled={!selectedImage}
-                      className="mt-2"
-                    />
-                  </div>
-
-                  <div className="space-y-2 bg-white p-4 rounded-lg shadow-sm">
-                    <div className="flex justify-between items-center">
-                      <Label className="text-sm font-medium text-blue-600">
-                        Contrast
-                      </Label>
-                      <span className="text-sm text-blue-500 font-medium">
-                        {settings.contrast}
-                      </span>
-                    </div>
-                    <Slider
-                      value={[settings.contrast] as SliderValue}
-                      onValueChange={(value: SliderValue) =>
-                        handleSliderChange(value, "contrast")
-                      }
-                      min={-100}
-                      max={100}
-                      step={1}
-                      disabled={!selectedImage}
-                      className="mt-2"
-                    />
-                  </div>
-
-                  <div className="space-y-2 bg-white p-4 rounded-lg shadow-sm">
-                    <div className="flex justify-between items-center">
-                      <Label className="text-sm font-medium text-blue-600">
-                        Brightness
-                      </Label>
-                      <span className="text-sm text-blue-500 font-medium">
-                        {settings.brightness}
-                      </span>
-                    </div>
-                    <Slider
-                      value={[settings.brightness] as SliderValue}
-                      onValueChange={(value: SliderValue) =>
-                        handleSliderChange(value, "brightness")
-                      }
-                      min={-100}
-                      max={100}
-                      step={1}
-                      disabled={!selectedImage}
-                      className="mt-2"
-                    />
-                  </div>
-
-                  <div className="space-y-2 bg-white p-4 rounded-lg shadow-sm">
-                    <div className="flex justify-between items-center">
-                      <Label className="text-sm font-medium text-blue-600">
-                        Saturation
-                      </Label>
-                      <span className="text-sm text-blue-500 font-medium">
-                        {settings.saturation}
-                      </span>
-                    </div>
-                    <Slider
-                      value={[settings.saturation] as SliderValue}
-                      onValueChange={(value: SliderValue) =>
-                        handleSliderChange(value, "saturation")
-                      }
-                      min={-100}
-                      max={100}
-                      step={1}
-                      disabled={!selectedImage}
-                      className="mt-2"
-                    />
-                  </div>
-
-                  <div className="space-y-2 bg-white p-4 rounded-lg shadow-sm">
-                    <div className="flex justify-between items-center">
-                      <Label className="text-sm font-medium text-blue-600">
-                        Hue
-                      </Label>
-                      <span className="text-sm text-blue-500 font-medium">
-                        {settings.hue}
-                      </span>
-                    </div>
-                    <Slider
-                      value={[settings.hue] as SliderValue}
-                      onValueChange={(value: SliderValue) =>
-                        handleSliderChange(value, "hue")
-                      }
-                      min={-60}
-                      max={60}
-                      step={1}
-                      disabled={!selectedImage}
-                      className="mt-2"
-                    />
-                  </div>
+                  <AdjustmentSlider
+                    label="Blur"
+                    value={settings.blur}
+                    onChange={(value) => handleSliderChange(value, "blur")}
+                    min={0}
+                    max={5}
+                    step={0.1}
+                    disabled={!selectedImage}
+                  />
+                  <AdjustmentSlider
+                    label="Sharpening"
+                    value={settings.sharpening}
+                    onChange={(value) =>
+                      handleSliderChange(value, "sharpening")
+                    }
+                    min={0}
+                    max={5}
+                    step={0.1}
+                    disabled={!selectedImage}
+                  />
+                  <AdjustmentSlider
+                    label="Gamma"
+                    value={settings.gamma}
+                    onChange={(value) => handleSliderChange(value, "gamma")}
+                    min={0}
+                    max={2}
+                    step={0.1}
+                    disabled={!selectedImage}
+                  />
+                  <AdjustmentSlider
+                    label="Contrast"
+                    value={settings.contrast}
+                    onChange={(value) => handleSliderChange(value, "contrast")}
+                    min={-100}
+                    max={100}
+                    step={1}
+                    disabled={!selectedImage}
+                  />
+                  <AdjustmentSlider
+                    label="Brightness"
+                    value={settings.brightness}
+                    onChange={(value) =>
+                      handleSliderChange(value, "brightness")
+                    }
+                    min={-100}
+                    max={100}
+                    step={1}
+                    disabled={!selectedImage}
+                  />
+                  <AdjustmentSlider
+                    label="Saturation"
+                    value={settings.saturation}
+                    onChange={(value) =>
+                      handleSliderChange(value, "saturation")
+                    }
+                    min={-100}
+                    max={100}
+                    step={1}
+                    disabled={!selectedImage}
+                  />
                 </div>
               </div>
             </div>
 
-            {/* Sticky Save Button */}
-            <div className="fixed bottom-6 right-6 z-50">
+            {/* Sticky Save and Reset Buttons */}
+            <div className="fixed bottom-6 right-6 z-50 flex gap-3">
+              {isModified && (
+                <Button
+                  className="bg-red-600 hover:bg-red-700 text-white shadow-lg transition-all duration-200 cursor-pointer px-6 py-6 flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handleReset}
+                  disabled={!selectedImage || isLoading}
+                >
+                  <RotateCcwIcon className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium">Reset</span>
+                </Button>
+              )}
               <Button
                 className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg transition-all duration-200 cursor-pointer px-6 py-6 flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={handleSave}
-                disabled={!selectedImage || isLoading}
+                disabled={!selectedImage || isLoading || !isModified}
               >
                 {isLoading ? (
                   <Loader2 className="h-5 w-5 animate-spin" />

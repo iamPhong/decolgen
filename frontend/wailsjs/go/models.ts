@@ -62,6 +62,34 @@ export namespace manager {
 		    return a;
 		}
 	}
+	export class PreviewImageHandlerOptions {
+	    width: number;
+	    height: number;
+	    filter: string;
+	    blur: number;
+	    sharpening: number;
+	    gamma: number;
+	    contrast: number;
+	    brightness: number;
+	    saturation: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new PreviewImageHandlerOptions(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.width = source["width"];
+	        this.height = source["height"];
+	        this.filter = source["filter"];
+	        this.blur = source["blur"];
+	        this.sharpening = source["sharpening"];
+	        this.gamma = source["gamma"];
+	        this.contrast = source["contrast"];
+	        this.brightness = source["brightness"];
+	        this.saturation = source["saturation"];
+	    }
+	}
 
 }
 

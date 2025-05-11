@@ -22,10 +22,18 @@ export function OpenFileDialog() {
   return window['go']['manager']['AppManager']['OpenFileDialog']();
 }
 
+export function PreviewImageHandler(arg1, arg2) {
+  return window['go']['manager']['AppManager']['PreviewImageHandler'](arg1, arg2);
+}
+
 export function ResizeByCapacityHandler(arg1, arg2) {
   return window['go']['manager']['AppManager']['ResizeByCapacityHandler'](arg1, arg2);
 }
 
 export function RevealInExplorer(arg1) {
   return window['go']['manager']['AppManager']['RevealInExplorer'](arg1);
+}
+
+export function SaveEditedImageHandler(arg1, arg2) {
+  return window['go']['manager']['AppManager']['SaveEditedImageHandler'](arg1, arg2);
 }
