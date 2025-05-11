@@ -82,6 +82,7 @@ type PreviewImageHandlerOptions struct {
 	Contrast   int     `json:"contrast"`
 	Brightness int     `json:"brightness"`
 	Saturation int     `json:"saturation"`
+	Invert     bool    `json:"invert"`
 }
 
 func (am *AppManager) PreviewImageHandler(filePath string, options PreviewImageHandlerOptions) (string, error) {
@@ -98,6 +99,10 @@ func (am *AppManager) PreviewImageHandler(filePath string, options PreviewImageH
 	img = imaging.AdjustContrast(img, float64(options.Contrast))
 	img = imaging.AdjustBrightness(img, float64(options.Brightness))
 	img = imaging.AdjustSaturation(img, float64(options.Saturation))
+
+	if options.Invert {
+		img = imaging.Invert(img)
+	}
 
 	buf := new(bytes.Buffer)
 	err = imaging.Encode(buf, img, am.formatImageMapping(extension))
@@ -124,6 +129,10 @@ func (am *AppManager) SaveEditedImageHandler(filePath string, options PreviewIma
 	img = imaging.AdjustContrast(img, float64(options.Contrast))
 	img = imaging.AdjustBrightness(img, float64(options.Brightness))
 	img = imaging.AdjustSaturation(img, float64(options.Saturation))
+
+	if options.Invert {
+		img = imaging.Invert(img)
+	}
 
 	savePath, err := runtime.SaveFileDialog(am.ctx, runtime.SaveDialogOptions{
 		Title: "Save Edited Image",

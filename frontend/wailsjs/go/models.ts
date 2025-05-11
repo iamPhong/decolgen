@@ -72,6 +72,7 @@ export namespace manager {
 	    contrast: number;
 	    brightness: number;
 	    saturation: number;
+	    invert: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new PreviewImageHandlerOptions(source);
@@ -88,6 +89,7 @@ export namespace manager {
 	        this.contrast = source["contrast"];
 	        this.brightness = source["brightness"];
 	        this.saturation = source["saturation"];
+	        this.invert = source["invert"];
 	    }
 	}
 

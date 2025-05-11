@@ -48,6 +48,7 @@ const DEFAULT_SETTINGS: ImageSettings = {
   contrast: 0,
   brightness: 0,
   saturation: 0,
+  invert: false,
 };
 
 // Types
@@ -61,6 +62,7 @@ interface ImageSettings {
   contrast: number;
   brightness: number;
   saturation: number;
+  invert: boolean;
 }
 
 type SliderValue = [number];
@@ -329,29 +331,53 @@ export default function GenerateImage() {
                     <ImageIcon className="h-5 w-5" />
                     Filter
                   </h3>
-                  <Select
-                    value={settings.filter}
-                    onValueChange={(value) => {
-                      setSettings((prev) => ({ ...prev, filter: value }));
-                      setIsModified(true);
-                    }}
-                    disabled={!selectedImage}
-                  >
-                    <SelectTrigger className="bg-white border-blue-200 focus:border-blue-400 focus:ring-blue-400">
-                      <SelectValue placeholder="Select filter" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {FILTERS.map((filter) => (
-                        <SelectItem
-                          key={filter.value}
-                          value={filter.value}
-                          className="focus:bg-blue-50 focus:text-blue-700"
-                        >
-                          {filter.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="space-y-4">
+                    <Select
+                      value={settings.filter}
+                      onValueChange={(value) => {
+                        setSettings((prev) => ({ ...prev, filter: value }));
+                        setIsModified(true);
+                      }}
+                      disabled={!selectedImage}
+                    >
+                      <SelectTrigger className="bg-white border-blue-200 focus:border-blue-400 focus:ring-blue-400">
+                        <SelectValue placeholder="Select filter" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {FILTERS.map((filter) => (
+                          <SelectItem
+                            key={filter.value}
+                            value={filter.value}
+                            className="focus:bg-blue-50 focus:text-blue-700"
+                          >
+                            {filter.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="invert"
+                        checked={settings.invert}
+                        onChange={(e) => {
+                          setSettings((prev) => ({
+                            ...prev,
+                            invert: e.target.checked,
+                          }));
+                          setIsModified(true);
+                        }}
+                        disabled={!selectedImage}
+                        className="h-4 w-4 rounded border-blue-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <Label
+                        htmlFor="invert"
+                        className="text-sm font-medium text-blue-600 cursor-pointer"
+                      >
+                        Invert Colors
+                      </Label>
+                    </div>
+                  </div>
                 </div>
               </div>
 
