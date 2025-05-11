@@ -73,7 +73,7 @@ Before you begin, ensure you have the following installed:
 2. Install frontend dependencies:
 
    ```bash
-   cd frontend
+   cd app/frontend
    pnpm install
    ```
 
@@ -89,6 +89,7 @@ Before you begin, ensure you have the following installed:
 1. Start the development server:
 
    ```bash
+   cd app
    wails dev
    ```
 
@@ -99,6 +100,7 @@ Before you begin, ensure you have the following installed:
 To build the application for production:
 
 ```bash
+cd app
 wails build
 ```
 
