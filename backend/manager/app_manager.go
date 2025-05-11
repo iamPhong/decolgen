@@ -2,6 +2,7 @@ package manager
 
 import (
 	"context"
+	"os"
 	"strings"
 
 	"github.com/tidwall/gjson"
@@ -57,4 +58,12 @@ func (am *AppManager) OnSecondInstanceLaunch(secondInstanceData options.SecondIn
 	runtime.WindowUnminimise(am.ctx)
 	runtime.Show(am.ctx)
 	go runtime.EventsEmit(am.ctx, "launchArgs", secondInstanceArgs)
+}
+
+func (am *AppManager) getHomeDir() string {
+	home, _ := os.UserHomeDir()
+	if strings.EqualFold(runtime.Environment(am.ctx).Platform, "windows") {
+		home = ""
+	}
+	return home
 }

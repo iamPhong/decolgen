@@ -1,28 +1,28 @@
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
-  ImageIcon,
-  MoveHorizontalIcon,
+  Maximize2Icon,
+  Wand2Icon,
+  PaintbrushIcon,
   InfoIcon,
   Github,
-  Pencil,
 } from "lucide-react";
 import { BrowserOpenURL } from "@wails/runtime";
 
 const menu = [
   {
     to: "/size",
-    icon: <MoveHorizontalIcon className="w-6 h-6" />,
+    icon: <Maximize2Icon className="w-6 h-6" />,
     tooltip: "Resize by Size",
   },
   {
     to: "/generateImage",
-    icon: <ImageIcon className="w-6 h-6" />,
+    icon: <Wand2Icon className="w-6 h-6" />,
     tooltip: "Generate Image",
   },
   {
     to: "/draw",
-    icon: <Pencil className="w-6 h-6" />,
+    icon: <PaintbrushIcon className="w-6 h-6" />,
     tooltip: "Draw",
   },
 ];

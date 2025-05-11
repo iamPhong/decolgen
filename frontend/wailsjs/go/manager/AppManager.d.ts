@@ -14,6 +14,6 @@ export function OnStartup(arg1:context.Context):Promise<void>;
 
 export function OpenFileDialog():Promise<manager.FileResult>;
 
-export function ResizeByCapacity(arg1:string,arg2:number):Promise<string>;
+export function ResizeByCapacityHandler(arg1:string,arg2:number):Promise<string>;
 
 export function RevealInExplorer(arg1:string):Promise<void>;

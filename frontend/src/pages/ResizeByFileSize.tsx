@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
   OpenFileDialog,
-  ResizeByCapacity,
+  ResizeByCapacityHandler,
   RevealInExplorer,
 } from "@wails/go/manager/AppManager";
 import { toast } from "sonner";
@@ -81,7 +81,7 @@ export default function ResizeByFileSize() {
     onSubmit: async (values) => {
       try {
         setIsLoading(true);
-        const savedPath = await ResizeByCapacity(
+        const savedPath = await ResizeByCapacityHandler(
           values.filePath,
           Number(values.fileSize)
         );

@@ -11,7 +11,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-func (am *AppManager) ResizeByCapacity(filePath string, capacity int) (string, error) {
+func (am *AppManager) ResizeByCapacityHandler(filePath string, capacity int) (string, error) {
 	data, err := os.ReadFile(filePath)
 	extension := filepath.Ext(filePath)
 	fileName := strings.TrimSuffix(filepath.Base(filePath), extension)
@@ -49,7 +49,7 @@ func (am *AppManager) ResizeByCapacity(filePath string, capacity int) (string, e
 			},
 		},
 		DefaultFilename:      fileName + "_decolgen_resized" + extension,
-		DefaultDirectory:     "",
+		DefaultDirectory:     am.getHomeDir(),
 		ShowHiddenFiles:      false,
 		CanCreateDirectories: true,
 	})

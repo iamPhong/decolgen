@@ -39,6 +39,7 @@ func (am *AppManager) OpenFileDialog() *FileResult {
 				Pattern:     "*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tiff;*.ico;*.webp",
 			},
 		},
+		DefaultDirectory: am.getHomeDir(),
 	})
 	if err != nil {
 		return &FileResult{

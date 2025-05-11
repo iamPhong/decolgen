@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -102,6 +102,17 @@ export default function GenerateImage() {
   ) => {
     setSettings((prev) => ({ ...prev, [setting]: value[0] }));
   };
+
+  const handlePreview = useCallback(async () => {
+    console.log(settings);
+  }, [settings]);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      handlePreview();
+    }, 1000);
+    return () => clearTimeout(timeoutId);
+  }, [handlePreview]);
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-b from-blue-50 to-white p-8">
@@ -270,7 +281,7 @@ export default function GenerateImage() {
                         handleSliderChange(value, "blur")
                       }
                       min={0}
-                      max={2}
+                      max={5}
                       step={0.1}
                       disabled={!selectedImage}
                       className="mt-2"
@@ -292,7 +303,7 @@ export default function GenerateImage() {
                         handleSliderChange(value, "sharpening")
                       }
                       min={0}
-                      max={2}
+                      max={5}
                       step={0.1}
                       disabled={!selectedImage}
                       className="mt-2"
@@ -335,8 +346,8 @@ export default function GenerateImage() {
                       onValueChange={(value: SliderValue) =>
                         handleSliderChange(value, "contrast")
                       }
-                      min={-20}
-                      max={20}
+                      min={-100}
+                      max={100}
                       step={1}
                       disabled={!selectedImage}
                       className="mt-2"
@@ -357,8 +368,8 @@ export default function GenerateImage() {
                       onValueChange={(value: SliderValue) =>
                         handleSliderChange(value, "brightness")
                       }
-                      min={-20}
-                      max={20}
+                      min={-100}
+                      max={100}
                       step={1}
                       disabled={!selectedImage}
                       className="mt-2"
@@ -379,8 +390,8 @@ export default function GenerateImage() {
                       onValueChange={(value: SliderValue) =>
                         handleSliderChange(value, "saturation")
                       }
-                      min={-30}
-                      max={30}
+                      min={-100}
+                      max={100}
                       step={1}
                       disabled={!selectedImage}
                       className="mt-2"
