@@ -39,8 +39,14 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
+
       - name: Build & Compress
-        shell: pwsh # 确保使用 PowerShell
+        shell: pwsh
         run: |
           $ARCH = $env:PROCESSOR_ARCHITECTURE.ToLower()
           go install github.com/wailsapp/wails/v2/cmd/wails@latest
@@ -82,6 +88,12 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
+
       - name: Build & Compress
         run: |
           ARCH=$(uname -m)
@@ -122,6 +134,12 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
 
       - name: Build & Compress
         run: |
