@@ -98,7 +98,7 @@ export default function Info() {
             <span>View on GitHub</span>
           </Button>
           <p className="text-sm text-gray-500 mt-4">
-            Version 1.0.0 • Made with ❤️
+            Version 1.0.1 • Made with ❤️
           </p>
         </div>
       </div>
