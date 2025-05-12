@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import ResizeByFileSize from "@/pages/ResizeByFileSize";
 import GenerateImage from "@/pages/GenerateImage";
 import App from "@/App";
+import Info from "@/pages/Info";
 import DrawPage from "@/pages/DrawPage";
 
 export const router = createBrowserRouter([
@@ -13,6 +14,7 @@ export const router = createBrowserRouter([
       { path: "size", element: <ResizeByFileSize /> },
       { path: "generateImage", element: <GenerateImage /> },
       { path: "draw", element: <DrawPage /> },
+      { path: "info", element: <Info /> },
     ],
   },
 ]);

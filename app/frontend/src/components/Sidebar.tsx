@@ -64,12 +64,19 @@ export default function Sidebar() {
         ))}
       </nav>
       <div className="flex flex-col gap-2 items-center mb-4">
-        <button
-          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-blue-100 text-gray-500 cursor-pointer"
+        <NavLink
+          to="/info"
+          className={({ isActive }) =>
+            cn(
+              "flex items-center justify-center w-10 h-10 rounded-full transition",
+              "hover:bg-blue-100 hover:text-blue-700",
+              isActive ? "bg-blue-100 text-blue-700" : "text-gray-500"
+            )
+          }
           title="About"
         >
           <InfoIcon className="w-5 h-5" />
-        </button>
+        </NavLink>
         <button
           onClick={OpenGithub}
           className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-blue-100 text-gray-500 cursor-pointer"
