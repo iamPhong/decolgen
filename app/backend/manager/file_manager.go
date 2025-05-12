@@ -13,6 +13,8 @@ import (
 	osRuntime "runtime"
 )
 
+const MAX_FILE_SIZE = 1024 * 1024 * 50 // 50MB
+
 type FileInfo struct {
 	Name     string `json:"name"`
 	ModTime  string `json:"modTime"`
@@ -78,6 +80,17 @@ func (am *AppManager) OpenFileDialog() *FileResult {
 			Message:       fmt.Sprintf("failed to get file info: %s", err),
 		}
 	}
+
+	fileSize := fileInfo.Size()
+	if fileSize > MAX_FILE_SIZE {
+		return &FileResult{
+			FileInfo:      FileInfo{},
+			Status:        0,
+			Base64Encoded: "",
+			Message:       fmt.Sprintf("Max file size is %dMB, your file size is %dMB", MAX_FILE_SIZE/1024/1024, fileSize/1024/1024),
+		}
+	}
+
 	encoded := base64.StdEncoding.EncodeToString(data)
 	width, height := getImageDimensions(filePath)
 
@@ -89,7 +102,7 @@ func (am *AppManager) OpenFileDialog() *FileResult {
 			Width:    width,
 			Height:   height,
 			Mode:     fmt.Sprintf("%o", fileInfo.Mode()),
-			Size:     int(fileInfo.Size()),
+			Size:     int(fileSize),
 			FilePath: filePath,
 		},
 		Status:        1,

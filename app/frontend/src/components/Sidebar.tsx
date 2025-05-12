@@ -9,6 +9,12 @@ import {
 } from "lucide-react";
 import { BrowserOpenURL } from "@wails/runtime";
 
+const Badge = ({ children }: { children: React.ReactNode }) => (
+  <span className="absolute -top-1 -right-1 px-1.5 py-0.5 text-[10px] font-medium bg-blue-100 text-blue-700 rounded-full">
+    {children}
+  </span>
+);
+
 const menu = [
   {
     to: "/size",
@@ -24,6 +30,7 @@ const menu = [
     to: "/draw",
     icon: <PaintbrushIcon className="w-6 h-6" />,
     tooltip: "Draw",
+    badge: "BETA",
   },
 ];
 
@@ -36,22 +43,24 @@ export default function Sidebar() {
     <aside className="fixed top-0 left-0 w-20 h-screen bg-gradient-to-b from-blue-50 to-white border-r flex flex-col items-center">
       <nav className="flex-1 flex flex-col gap-2 items-center mt-8">
         {menu.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            className={({ isActive }) =>
-              cn(
-                "flex items-center justify-center w-12 h-12 rounded-lg transition",
-                "hover:bg-blue-100 hover:text-blue-700",
-                isActive
-                  ? "bg-blue-100 text-blue-700 border-blue-500"
-                  : "text-gray-600 border-transparent"
-              )
-            }
-            title={item.tooltip}
-          >
-            {item.icon}
-          </NavLink>
+          <div key={item.to} className="relative">
+            <NavLink
+              to={item.to}
+              className={({ isActive }) =>
+                cn(
+                  "flex items-center justify-center w-12 h-12 rounded-lg transition",
+                  "hover:bg-blue-100 hover:text-blue-700",
+                  isActive
+                    ? "bg-blue-100 text-blue-700 border-blue-500"
+                    : "text-gray-600 border-transparent"
+                )
+              }
+              title={item.tooltip}
+            >
+              {item.icon}
+            </NavLink>
+            {item.badge && <Badge>{item.badge}</Badge>}
+          </div>
         ))}
       </nav>
       <div className="flex flex-col gap-2 items-center mb-4">

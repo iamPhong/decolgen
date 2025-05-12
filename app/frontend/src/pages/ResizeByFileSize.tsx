@@ -32,7 +32,11 @@ export default function ResizeByFileSize() {
         formik.setFieldValue("fileSize", result.fileInfo.size);
         formik.setFieldValue("filePath", result.fileInfo.filePath);
       } else {
-        toast.error(result?.message || "Failed to open file");
+        if (result?.message === "User cancelled the open file dialog") {
+          toast.warning(result?.message);
+        } else {
+          toast.error(result?.message || "Failed to open file");
+        }
       }
     } finally {
       setIsLoading(false);
@@ -146,6 +150,9 @@ export default function ResizeByFileSize() {
                       </div>
                       <div className="text-xs text-blue-400">
                         BMP, PNG, JPG, JPEG, TIF, TIFF, WebP or GIF
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Maximum file size: 50MB
                       </div>
                     </div>
                   </div>

@@ -102,6 +102,7 @@ const UploadArea = ({
           <div className="text-sm text-blue-400">
             BMP, PNG, JPG, JPEG, TIF, TIFF, WebP or GIF
           </div>
+          <div className="text-xs text-gray-500">Maximum file size: 50MB</div>
         </div>
       </div>
     )}
